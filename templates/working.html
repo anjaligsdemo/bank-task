@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="jumbotron jumbotron-fluid position-relative overlay-bottom" style="margin-bottom: 90px;">
+        <div class="container text-center my-5 py-5">
+            <h1 class="text-white mt-4 mb-4">You perfect banking patner </h1>
+            <h1 class="text-white display-1 mb-5">AGS Bank</h1>
+            <div class="row">
+                <div class="col-sm-6 mx-auto">
+                    <button data-target="#commonModal" data-toggle="modal" class="btn btn-info py-2 px-4 d-none d-lg-block">Your account details </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+
+
+<div class="modal fade" id="commonModal" tabindex="-1" role="dialog">
+    <div class="row justify-content-center bg-image mx-0 mb-5">
+        <div class="col-lg-6 py-5">
+            <div class="bg-white p-5 my-5">
+                <button id="closeButton" class="close" type="button" onClick="myFunction()" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h1 class="text-center mb-4">REGISTER HERE</h1>
+                <form method="post" action=" ">
+                {% csrf_token %}
+                    <div class="form-row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <input type="text" class="form-control bg-light border-0" name="firstname" placeholder="First Name" style="padding: 30px 20px;">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <input type="text" class="form-control bg-light border-0" name="gender" placeholder="Gender" style="padding: 30px 20px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <input type="text" class="form-control bg-light border-0" name="dob" placeholder="Date of birth" style="padding: 30px 20px;">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <input type="text" class="form-control bg-light border-0" name="age" placeholder="Age" style="padding: 30px 20px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <input type="text" class="form-control bg-light border-0" name="phone" placeholder="Phone" style="padding: 30px 20px;">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <input type="text" class="form-control bg-light border-0" name="email" placeholder="email" style="padding: 30px 20px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <input type="text" class="form-control bg-light border-0" name="address" placeholder="Adress" style="padding: 30px 20px;">
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="form-row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <select id="district" name="district" class="form-control bg-light border-0" style="padding: 30px 20px;">
+                                    <option value="">Select District</option>
+                                    {% for district in districts %}
+                                    <option value="{{ district.id }}">{{ district.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <select id="branch" name="branch" class="form-control bg-light border-0" style="padding: 30px 20px;">
+                                    <option value="">Select Branch</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <input type="text" class="form-control bg-light border-0" name="acctype" placeholder="Account Type" style="padding: 30px 20px;">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <input type="text" class="form-control bg-light border-0" name="materials" placeholder="materials" style="padding: 30px 20px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <button class="btn btn-primary btn-block" type="submit" style="height: 60px;">Submit</button>
+                            </div>
+                        </div>
+<!--                        <div class="col-sm-6">-->
+<!--                            <div class="form-group">-->
+<!--                                <select class="custom-select bg-light border-0 px-3" style="height: 60px;">-->
+<!--                                    <option selected>Select A courses</option>-->
+<!--                                    <option value="1">courses 1</option>-->
+<!--                                    <option value="2">courses 1</option>-->
+<!--                                    <option value="3">courses 1</option>-->
+<!--                                </select>-->
+<!--                            </div>-->
+<!--                        </div>-->
+                        <div class="col-sm-6">
+                            <button class="btn btn-primary btn-block" type="" style="height: 60px;">Log Out</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#district').change(function () {
+            var districtId = $(this).val();
+            $.ajax({
+                url: '{% url 'get_branches' %}',
+                data: {
+                    'district_id': districtId
+                },
+                dataType: 'json',
+                success: function (data) {
+                    var branchSelect = $('#branch');
+                    branchSelect.empty();
+                    $.each(data, function (index, branch) {
+                        branchSelect.append($('<option></option>').attr('value', branch.id).text(branch.name));
+                    });
+                }
+            });
+        });
+    });
+</script>

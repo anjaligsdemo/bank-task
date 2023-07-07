@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="jumbotron jumbotron-fluid position-relative overlay-bottom" style="margin-bottom: 90px;"
+     xmlns="http://www.w3.org/1999/html">
+        <div class="container text-center my-5 py-5">
+            <div class="error-info">
+            {% if errors %}
+                {% for key, value in errors.items %}
+                    <p class="text-danger"> {{ value }}</p>
+                {% endfor %}
+            {% endif %}
+            </div>
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                    <p class="text-white display-1 mb-5 success-message">
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+
+                    </p>
+                    {% endfor %}
+                    <div class="row">
+                        <div class="col-sm-12 d-flex justify-content-center">
+                            <div class="text-center mt-3">
+                            <a href="/home" class="btn btn-success btn-block" style="height: 60px;">Click here to go Home </a>
+                        </div>
+                        </div>
+                    </div>
+                </ul>
+            {% else %}
+            <h1 class="text-white mt-4 mb-4">Your perfect banking partner</h1>
+            <h1 class="text-white display-1 mb-5">AGS Bank</h1>
+            <div class="row">
+                <div class="col-sm-12 d-flex justify-content-center">
+                    <button data-target="#commonModal" data-toggle="modal" class="btn btn-info py-2 px-4 d-none d-lg-block">Your account details</button>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="commonModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">REGISTER HERE</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="" id="registrationForm">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="firstName" name="firstname" placeholder="First Name" required>
+                            <small class="error-msg"></small>
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">Gender</label>
+                            <select class="form-control" id="gender" name="gender" required>
+                                {% for choice in gender_choices %}
+                                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input class="form-control" type="date" name="dob" id="datepicker" placeholder="Date of Birth" required>
+                            <small class="error-msg" id="first-name-err"></small>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" class="form-control" name="age" placeholder="Age" required>
+                            <small class="error-msg"></small>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" class="form-control" name="phone" placeholder="Phone" required>
+                            <small class="error-msg"></small>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" class="form-control" name="email" placeholder="Email" required>
+                            <small class="error-msg"></small>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" name="address" placeholder="Address" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <select id="district" name="district" class="form-control" required>
+                                        <option value="">Select District</option>
+                                        {% for district in districts %}
+                                            <option value="{{ district.id }}">{{ district.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <select id="branch" name="branch" class="form-control">
+                                        <option value="">Select Branch</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <select class="form-control" id="account_type" name="account_type" required>
+                                <option value="">Account Type</option>
+                                {% for choice in account_type_choices %}
+                                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Materials</label>
+                            <div class="form-check">
+                                {% for material in materials %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="materials" value="{{ material.id }}">
+                                        <label class="form-check-label">{{ material.name }}</label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary" name="submitBtns" id="submitBtn">Submit</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+
+    <script>
+        $(document).ready(function () {
+            $('#district').change(function () {
+                var districtId = $(this).val();
+                $.ajax({
+                    url: '{% url 'get_branches' %}',
+                    data: {
+                        'district_id': districtId
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        var branchSelect = $('#branch');
+                        branchSelect.empty();
+                        $.each(data, function (index, branch) {
+                            branchSelect.append($('<option></option>').attr('value', branch.id).text(branch.name));
+                        });
+                    }
+                });
+            });
+
+
+        });
+    </script>
+{% endblock %}
